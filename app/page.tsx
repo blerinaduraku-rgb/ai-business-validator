@@ -1,65 +1,95 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import "./globals.css";
 
 export default function Home() {
+  const [idea, setIdea] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setResponse("");
+
+    try {
+      const res = await fetch("/api/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea }),
+      });
+
+      if (!res.ok) throw new Error("Failed to analyze idea");
+
+      const data = await res.json();
+      setResponse(data.result);
+    } catch (err) {
+      setError("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Format markdown-like text to HTML
+  const formatResponse = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\n/g, "<br />")
+      .replace(/📋|✅|⚠️|💡|🎯|❓/g, (match) => `<span class="emoji">${match}</span>`);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="container">
+      <div className="card">
+
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <a href="/history" style={{ color: '#667eea' }}>📚 View History →</a>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        
+        <h1>💡 Business Idea Validator</h1>
+        <p className="subtitle">Get AI-powered feedback on your startup idea</p>
+
+        <form onSubmit={handleSubmit} className="form">
+          <textarea
+            value={idea}
+            onChange={(e) => setIdea(e.target.value)}
+            placeholder="Describe your business idea here... (e.g., 'An AI-powered app that helps students find study partners based on their learning style and schedule')"
+            rows={5}
+            className="textarea"
+            disabled={loading}
+          />
+
+          <button 
+            type="submit" 
+            disabled={loading || !idea.trim()} 
+            className="button"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Analyzing...
+              </>
+            ) : (
+              "Validate Idea"
+            )}
+          </button>
+        </form>
+
+        {error && <div className="error">{error}</div>}
+
+        {response && (
+          <div className="response">
+            <h2>🤖 AI Analysis</h2>
+            <div 
+              className="response-content"
+              dangerouslySetInnerHTML={{ __html: formatResponse(response) }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
