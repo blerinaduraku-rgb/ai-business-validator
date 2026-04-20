@@ -1,129 +1,88 @@
 import { NextResponse } from "next/server";
-import { createClient } from '@supabase/supabase-js';
+import OpenAI from "openai";
 
-const SYSTEM_PROMPT = `You are an AI Business Idea Validator. Evaluate startup ideas across: problem, market, competition, monetization, scalability. Be honest and constructive. Structure: Summary, Strengths, Weaknesses, Suggestions, Verdict.`;
+// OpenRouter uses OpenAI-compatible SDK
+const client = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
 
-// Server-side Supabase client (bypasses RLS)
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const SYSTEM_PROMPT = `
+You are a professional business analyst AI.
 
-function generateMockResponse(idea: string): string {
-  const isComplex = idea.length > 50;
-  
-  if (!isComplex) {
-    return `📋 **Summary:** ${idea}
+Return ONLY in this format:
 
-✅ **Strengths:**
-- Simple concept
-- Easy to understand
+### 📋 Summary
+...
 
-⚠️ **Weaknesses:**
-- Likely competition exists
+### ✅ Strengths
+- ...
+- ...
 
-💡 **Suggestions:**
-- Add unique features
+### ⚠️ Weaknesses
+- ...
+- ...
 
-🎯 **Final Verdict:** Moderate potential`;
-  }
+### 💡 Suggestions
+- ...
+- ...
 
-  return `📋 **Summary:** ${idea.substring(0, 100)}...
+### 🎯 Final Verdict
+Low / Moderate / High potential
 
-✅ **Strengths:**
-- Addresses market need
-- Growth potential
-
-⚠️ **Weaknesses:**
-- High competition
-
-💡 **Suggestions:**
-- Build MVP first
-
-🎯 **Final Verdict:** Good potential`;
-}
+No extra text before or after.
+`;
 
 export async function POST(req: Request) {
   try {
     const { idea } = await req.json();
 
-    if (!idea || idea.trim().length === 0) {
-      return NextResponse.json({ error: "No idea provided" }, { status: 400 });
+    // 🔥 VALIDATION FIX
+    if (!idea || idea.trim().length < 3) {
+      return NextResponse.json(
+        { error: "Please provide a more detailed business idea." },
+        { status: 400 }
+      );
     }
 
-    // Check for unclear ideas
-    const isUnclear = idea.trim().split(" ").length < 3 || 
-                      (idea.toLowerCase().includes("i have an idea") && idea.length < 20);
-
-    if (isUnclear) {
-      const response = `❓ **Idea Unclear**
-
-I need more details. Please tell me:
-1. What problem does it solve?
-2. Who is your target customer?
-3. How does your solution work?`;
-
-      // Save to Supabase
-      await supabaseAdmin.from('idea_validations').insert({
-        idea,
-        ai_response: response,
-        is_mock: true
-      });
-
-      return NextResponse.json({ result: response });
-    }
-
-    let aiResponse: string;
-    let isMock = false;
-
-    // Try Hugging Face API
-    try {
-      const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.HF_TOKEN}`,
-          "Content-Type": "application/json"
+    const completion = await client.chat.completions.create({
+      model: "mistralai/mistral-small-3.1-24b-instruct",
+      messages: [
+        {
+          role: "system",
+          content: SYSTEM_PROMPT,
         },
-        body: JSON.stringify({
-          model: "mistralai/Mistral-7B-Instruct-v0.2:fastest",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: `Evaluate this business idea: "${idea}"` }
-          ],
-          temperature: 0.7,
-          max_tokens: 1024
-        })
-      });
+        {
+          role: "user",
+          content: idea,
+        },
+      ],
+      temperature: 0.3,
+    });
 
-      if (response.ok) {
-        const data = await response.json();
-        aiResponse = data.choices[0]?.message?.content;
-      } else {
-        throw new Error("API failed");
-      }
-    } catch (apiError) {
-      console.log("API failed, using mock response");
-      aiResponse = generateMockResponse(idea);
-      isMock = true;
+    const result = completion.choices[0]?.message?.content?.trim() || "";
+
+    // 🔥 SAFETY CHECK
+    if (!result) {
+      return NextResponse.json(
+        { error: "AI returned empty response. Try again." },
+        { status: 500 }
+      );
     }
 
-    // Save to Supabase
-    const { error: dbError } = await supabaseAdmin
-      .from('idea_validations')
-      .insert({
-        idea,
-        ai_response: aiResponse,
-        is_mock: isMock
-      });
+    return NextResponse.json({
+      result,
+    });
+  } catch (error: any) {
+    console.error("OPENROUTER ERROR:", error);
 
-    if (dbError) {
-      console.error("Supabase error:", dbError);
-    }
-
-    return NextResponse.json({ result: aiResponse });
-
-  } catch (error) {
-    console.error("Error:", error);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    // 🔥 CLEAN USER-FACING ERROR
+    return NextResponse.json(
+      {
+        error:
+          "AI service is temporarily unavailable. Please try again in a moment."
+      },
+      { status: 500 }
+    );
   }
 }
