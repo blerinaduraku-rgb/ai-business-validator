@@ -1,13 +1,44 @@
-  "use client";
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
   const [idea, setIdea] = useState("");
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState("");
   const [error, setError] = useState("");
+
+  // 🔒 PROTECTED ROUTE
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, authLoading, router]);
+
+  // 🔥 LOGOUT
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
+  // ⏳ auth loading
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading authentication...
+      </div>
+    );
+  }
+
+  // 🔒 prevent flash
+  if (!user) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +75,18 @@ export default function Home() {
 
   return (
     <div className="container">
+      
+      {/* 🔴 TOP BAR */}
+      <div className="flex justify-end p-4">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+        >
+          Logout
+        </button>
+      </div>
+
+      {/* 🧠 MAIN CARD */}
       <div className="card">
         <h1>💡 Business Idea Validator</h1>
         <p className="subtitle">
@@ -63,7 +106,10 @@ export default function Home() {
             disabled={loading}
           />
 
-          <button className="button" disabled={loading || !idea.trim()}>
+          <button
+            className="button"
+            disabled={loading || !idea.trim()}
+          >
             {loading ? "Analyzing..." : "🚀 Validate Idea"}
           </button>
         </form>
