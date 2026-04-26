@@ -162,4 +162,23 @@ Projekt i deplojuar në Vercel dhe i aksesueshëm live.
 
 ## 👨‍💻 Autori
 
-Student project – Business Idea Validator
+🔧 Qëndrueshmëria & Edge Cases
+
+Si pjesë e përmirësimit të aplikacionit pas deploy, janë implementuar disa raste reale (edge cases) për të siguruar stabilitet dhe eksperiencë më të mirë për përdoruesin.
+
+✅ Edge Cases të trajtuara
+Input bosh
+Aplikacioni validon input-in dhe nuk lejon dërgimin nëse fusha është bosh ose shumë e shkurtër.
+Input shumë i gjatë
+Kërkesat refuzohen nëse tejkalohet limiti i karaktereve për të shmangur probleme me performancën.
+Dështimi i API / network error
+Aplikacioni trajton gabimet nga API dhe shfaq mesazh të qartë pa u crash-uar.
+Parandalimi i double submit
+Butoni çaktivizohet gjatë loading për të shmangur dërgime të shumëfishta.
+🎯 Përmirësime në UX
+Shfaqet loading state gjatë përpunimit të kërkesës
+Mesazhe gabimi të qarta dhe të kuptueshme
+Aplikacioni nuk crash-on dhe gjithmonë kthen përgjigje të kontrolluar
+🚀 Stabiliteti në Production
+
+Aplikacioni është testuar në versionin live dhe trajton të gjitha edge cases pa probleme, duke ofruar një eksperiencë të qëndrueshme dhe të besueshme për përdoruesin.
