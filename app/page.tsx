@@ -32,7 +32,7 @@ export default function Home() {
     router.push("/dashboard");
   };
 
-  // ⏳ LOADING
+  // ⏳ LOADING AUTH
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -43,14 +43,22 @@ export default function Home() {
 
   if (!user) return null;
 
+  // 🚀 SUBMIT HANDLER
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setError("");
     setResponse("");
 
-    if (!idea.trim() || idea.trim().length < 10) {
-      setError("Please provide a more detailed idea (min 10 chars)");
+    // 🚨 EDGE CASE #1: empty input
+    if (!idea || idea.trim().length < 3) {
+      setError("Please provide a more detailed idea (min 3 chars)");
+      return;
+    }
+
+    // 🚨 EDGE CASE #2: too long input
+    if (idea.length > 2000) {
+      setError("Idea is too long. Please shorten it.");
       return;
     }
 
@@ -65,7 +73,9 @@ export default function Home() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || "Server error");
+      if (!res.ok) {
+        throw new Error(data.error || "Server error");
+      }
 
       setResponse(data.result);
     } catch (err: any) {
@@ -78,7 +88,7 @@ export default function Home() {
   return (
     <div className="container">
 
-      {/* 🔵 SIDE BUTTONS (ONLY WHAT MAKES SENSE) */}
+      {/* 🔵 SIDE BUTTONS */}
       <div className="fixed top-4 right-4 flex flex-col gap-2">
 
         <button
@@ -97,7 +107,7 @@ export default function Home() {
 
       </div>
 
-      {/* 🧠 MAIN CARD (UNCHANGED DESIGN) */}
+      {/* 🧠 MAIN CARD */}
       <div className="card">
         <h1>💡 Business Idea Validator</h1>
         <p className="subtitle">
@@ -117,13 +127,16 @@ export default function Home() {
             disabled={loading}
           />
 
-          <button className="button" disabled={loading || !idea.trim()}>
+          {/* 🚨 FIX: only block loading, not empty input */}
+          <button className="button" disabled={loading}>
             {loading ? "Analyzing..." : "🚀 Validate Idea"}
           </button>
         </form>
 
+        {/* ⚠️ ERROR UI */}
         {error && <div className="error">⚠️ {error}</div>}
 
+        {/* ⏳ LOADING UI */}
         {loading && (
           <div className="loading-box">
             <div className="loading-spinner"></div>
@@ -131,6 +144,7 @@ export default function Home() {
           </div>
         )}
 
+        {/* 📄 RESPONSE */}
         {response && !loading && (
           <div className="response">
             <ReactMarkdown>{response}</ReactMarkdown>
