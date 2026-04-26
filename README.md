@@ -105,3 +105,61 @@ The goal of this project is to simulate a real AI SaaS product that evaluates bu
 ## 📄 License
 
 This project is for educational purposes.
+
+
+
+
+
+Live Demo: https://ai-business-validator-rho.vercel.app
+
+---
+
+## 📌 Përshkrimi
+
+Ky projekt është një aplikacion web që përdor AI për të analizuar dhe validuar ide biznesi. Përdoruesi mund të shkruajë një ide dhe sistemi i jep një analizë të plotë me:
+
+- Përmbledhje
+- Pikat e forta
+- Dobësitë
+- Sugjerime për përmirësim
+- Vlerësim final të potencialit
+
+---
+
+## 🔐 Authentication
+
+Aplikacioni përfshin sistem login/register për përdoruesit, duke përdorur autentikim të sigurt.
+
+---
+
+## 💾 Database
+
+Të dhënat ruhen në Supabase, duke përfshirë idetë e përdoruesve dhe historikun e analizave.
+
+---
+
+## 🤖 AI Feature
+
+Analiza e ideve bëhet përmes OpenRouter API me model AI që gjeneron përgjigje të strukturuara.
+
+---
+
+## 🛠️ Teknologjitë
+
+- Next.js
+- React
+- Supabase
+- OpenRouter AI
+- Vercel
+
+---
+
+## 🌐 Deployment
+
+Projekt i deplojuar në Vercel dhe i aksesueshëm live.
+
+---
+
+## 👨‍💻 Autori
+
+Student project – Business Idea Validator
