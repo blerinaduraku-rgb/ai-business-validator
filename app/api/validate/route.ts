@@ -52,8 +52,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🚨 EDGE CASE #3: deterministic API FAIL TEST
-    // 👉 shkruaj "fail-api" për me testu error handling
+    // 🚨 EDGE CASE #3: manual fail test
     const normalized = idea.trim().toLowerCase();
 
     if (normalized.includes("fail-api")) {
