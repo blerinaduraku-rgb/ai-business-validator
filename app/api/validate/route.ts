@@ -36,9 +36,18 @@ export async function POST(req: Request) {
   try {
     const { idea } = await req.json();
 
+    // 🚨 EDGE CASE #1: empty input
     if (!idea || idea.trim().length < 3) {
       return NextResponse.json(
         { error: "Please provide a more detailed idea." },
+        { status: 400 }
+      );
+    }
+
+    // 🚨 EDGE CASE #2: too long input
+    if (idea.length > 2000) {
+      return NextResponse.json(
+        { error: "Idea is too long. Please shorten it (max 2000 characters)." },
         { status: 400 }
       );
     }
@@ -70,7 +79,7 @@ export async function POST(req: Request) {
         },
       ],
       temperature: 0.3,
-      max_tokens: 1200, // 🔥 FIX për përgjigje të plota
+      max_tokens: 1200,
     });
 
     const result = completion.choices[0]?.message?.content?.trim();
@@ -87,8 +96,9 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("API ERROR:", err);
 
+    // 🚨 EDGE CASE #3: server / network failure
     return NextResponse.json(
-      { error: "Server error. Try again." },
+      { error: "AI service failed. Please try again." },
       { status: 500 }
     );
   }
