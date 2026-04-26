@@ -32,7 +32,7 @@ export default function Home() {
     router.push("/dashboard");
   };
 
-  // ⏳ LOADING AUTH
+  // ⏳ AUTH LOADING
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -46,6 +46,9 @@ export default function Home() {
   // 🚀 SUBMIT HANDLER
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 🐛 BUG FIX: prevent double submit
+    if (loading) return;
 
     setError("");
     setResponse("");
@@ -127,16 +130,22 @@ export default function Home() {
             disabled={loading}
           />
 
-          {/* 🚨 FIX: only block loading, not empty input */}
-          <button className="button" disabled={loading}>
+          <button
+            className="button"
+            disabled={loading}
+          >
             {loading ? "Analyzing..." : "🚀 Validate Idea"}
           </button>
         </form>
 
-        {/* ⚠️ ERROR UI */}
-        {error && <div className="error">⚠️ {error}</div>}
+        {/* ⚠️ ERROR STATE */}
+        {error && (
+          <div className="error">
+            ⚠️ {error}
+          </div>
+        )}
 
-        {/* ⏳ LOADING UI */}
+        {/* ⏳ LOADING STATE */}
         {loading && (
           <div className="loading-box">
             <div className="loading-spinner"></div>
