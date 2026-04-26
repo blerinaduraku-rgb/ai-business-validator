@@ -52,10 +52,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🚨 EDGE CASE #3: manual API FAIL TEST (for grading demo)
-    // shkruaj "fail-api" në input për me testu error handling
-    if (idea.trim().toLowerCase() === "fail-api") {
-      throw new Error("Simulated API failure for testing edge case");
+    // 🚨 EDGE CASE #3: deterministic API FAIL TEST
+    // 👉 shkruaj "fail-api" për me testu error handling
+    const normalized = idea.trim().toLowerCase();
+
+    if (normalized.includes("fail-api")) {
+      return NextResponse.json(
+        { error: "AI service failed. Please try again later." },
+        { status: 500 }
+      );
     }
 
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -102,7 +107,6 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("API ERROR:", err);
 
-    // 🚨 EDGE CASE #4: network / server failure (clean UX)
     return NextResponse.json(
       { error: "AI service failed. Please try again later." },
       { status: 500 }
