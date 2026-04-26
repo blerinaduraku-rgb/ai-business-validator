@@ -1,33 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-export const runtime = "nodejs"; // 🔥 IMPORTANT për Vercel
-
-const SYSTEM_PROMPT = `
-You are a professional business analyst AI.
-
-Return ONLY in this format:
-
-### 📋 Summary
-...
-
-### ✅ Strengths
-- ...
-- ...
-
-### ⚠️ Weaknesses
-- ...
-- ...
-
-### 💡 Suggestions
-- ...
-- ...
-
-### 🎯 Final Verdict
-Low / Moderate / High potential
-
-No extra text before or after.
-`;
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -35,18 +10,16 @@ export async function POST(req: Request) {
 
     if (!idea || idea.trim().length < 3) {
       return NextResponse.json(
-        { error: "Please provide a more detailed business idea." },
+        { error: "Please provide a more detailed idea." },
         { status: 400 }
       );
     }
 
     const apiKey = process.env.OPENROUTER_API_KEY;
 
-    // 🔥 HARD GUARD (kjo ta tregon real problemin në Vercel)
     if (!apiKey) {
-      console.error("MISSING OPENROUTER_API_KEY");
       return NextResponse.json(
-        { error: "Server misconfigured (missing API key)" },
+        { error: "Missing API key" },
         { status: 500 }
       );
     }
@@ -59,35 +32,19 @@ export async function POST(req: Request) {
     const completion = await client.chat.completions.create({
       model: "mistralai/mistral-small-3.1-24b-instruct",
       messages: [
-        {
-          role: "system",
-          content: SYSTEM_PROMPT,
-        },
-        {
-          role: "user",
-          content: idea,
-        },
+        { role: "user", content: idea },
       ],
-      temperature: 0.3,
     });
 
-    const result = completion.choices[0]?.message?.content?.trim();
+    return NextResponse.json({
+      result: completion.choices[0]?.message?.content ?? "",
+    });
 
-    if (!result) {
-      return NextResponse.json(
-        { error: "AI returned empty response. Try again." },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ result });
-  } catch (error: any) {
-    console.error("OPENROUTER ERROR:", error);
+  } catch (err) {
+    console.error(err);
 
     return NextResponse.json(
-      {
-        error: "AI service is temporarily unavailable. Please try again."
-      },
+      { error: "Server error" },
       { status: 500 }
     );
   }
