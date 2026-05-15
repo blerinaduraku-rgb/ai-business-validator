@@ -21,8 +21,10 @@ Built with Next.js, this project simulates a real-world AI SaaS tool that evalua
 - Next.js (React Framework)  
 - TypeScript  
 - Tailwind CSS  
-- AI API (Hugging Face / LLM integration)  
+- AI API (OpenRouter / LLM integration)  
 - Node.js (API routes)  
+- Supabase  
+- Vercel  
 
 ---
 
@@ -41,20 +43,47 @@ lib/
 ## ▶️ Getting Started
 
 ### 1. Install dependencies
+
+```bash
 npm install
+```
 
 ### 2. Run development server
+
+```bash
 npm run dev
+```
 
 ### 3. Open in browser
+
+```text
 http://localhost:3000
+```
+
+---
+
+## 🔑 Environment Variables
+
+Create a `.env.local` file and add:
+
+```env
+OPENROUTER_API_KEY=your_key
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+```
+
+---
+
+## 🌐 Live Demo
+
+https://ai-business-validator-rho.vercel.app
 
 ---
 
 ## 🧩 Design Patterns Implemented
 
 ### Singleton Pattern
-File: lib/AiClient.ts
+File: `lib/AiClient.ts`
 
 Ensures only one instance of the AI client exists throughout the application.  
 This improves performance and avoids multiple unnecessary API connections.
@@ -66,7 +95,7 @@ Used for:
 ---
 
 ### Factory Pattern
-File: lib/ReportFactory.ts
+File: `lib/ReportFactory.ts`
 
 Creates different types of business validation reports dynamically.
 
@@ -89,96 +118,84 @@ The goal of this project is to simulate a real AI SaaS product that evaluates bu
 - Managing UI states (loading → response flow)  
 - Structuring scalable full-stack projects  
 - Applying Design Patterns in real projects  
+- Improving application stability and error handling  
 
 ---
 
 ## 🚀 Future Improvements
 
-- User authentication  
 - Save idea history  
 - Export reports as PDF  
 - Better AI response tuning  
-- Deployment on Vercel  
+- More advanced dashboard analytics  
+
+---
+
+## 🔐 Authentication
+
+The application includes Login/Register functionality using secure Supabase authentication.
+
+---
+
+## 💾 Database
+
+Data is stored using Supabase, including:
+- User accounts
+- Business ideas
+- AI-generated analysis history
+
+---
+
+## 🤖 AI Feature
+
+Business idea analysis is generated using OpenRouter AI models with structured responses including:
+- Summary
+- Strengths
+- Weaknesses
+- Suggestions
+- Final verdict
+
+---
+
+## 🔧 Stability & Edge Cases
+
+As part of the production hardening process, several real-world edge cases were implemented to improve stability and user experience.
+
+### ✅ Handled Edge Cases
+
+- Empty input validation
+- Very long input protection
+- API failure / network error handling
+- Double submit prevention
+- Protected route handling
+
+### 🎯 UX Improvements
+
+- Clear loading state during AI processing
+- Human-readable error messages
+- Disabled submit button during requests
+- Stable response handling without crashes
+
+---
+
+## 🛠️ Debugging, Review & Hardening
+
+### 🐛 Bug Fix
+- Fixed duplicate API requests during rapid submit actions
+- Prevented multiple simultaneous form submissions
+
+### 🎨 UX / Feedback Improvements
+- Improved loading state visibility
+- Added better error feedback
+- Improved overall application responsiveness
+
+### 🧹 Refactor / Cleanup
+- Cleaned submit logic and state handling
+- Improved component readability
+- Better separation of validation and request logic
 
 ---
 
 ## 📄 License
 
 This project is for educational purposes.
-
-
-
-
-
-Live Demo: https://ai-business-validator-rho.vercel.app
-
----
-
-## 📌 Përshkrimi
-
-Ky projekt është një aplikacion web që përdor AI për të analizuar dhe validuar ide biznesi. Përdoruesi mund të shkruajë një ide dhe sistemi i jep një analizë të plotë me:
-
-- Përmbledhje
-- Pikat e forta
-- Dobësitë
-- Sugjerime për përmirësim
-- Vlerësim final të potencialit
-
----
-
-## 🔐 Authentication
-
-Aplikacioni përfshin sistem login/register për përdoruesit, duke përdorur autentikim të sigurt.
-
----
-
-## 💾 Database
-
-Të dhënat ruhen në Supabase, duke përfshirë idetë e përdoruesve dhe historikun e analizave.
-
----
-
-## 🤖 AI Feature
-
-Analiza e ideve bëhet përmes OpenRouter API me model AI që gjeneron përgjigje të strukturuara.
-
----
-
-## 🛠️ Teknologjitë
-
-- Next.js
-- React
-- Supabase
-- OpenRouter AI
-- Vercel
-
----
-
-## 🌐 Deployment
-
-Projekt i deplojuar në Vercel dhe i aksesueshëm live.
-
----
-
-## 👨‍💻 Autori
-
-🔧 Qëndrueshmëria & Edge Cases
-
-Si pjesë e përmirësimit të aplikacionit pas deploy, janë implementuar disa raste reale (edge cases) për të siguruar stabilitet dhe eksperiencë më të mirë për përdoruesin.
-
-✅ Edge Cases të trajtuara
-Input bosh
-Aplikacioni validon input-in dhe nuk lejon dërgimin nëse fusha është bosh ose shumë e shkurtër.
-Input shumë i gjatë
-Kërkesat refuzohen nëse tejkalohet limiti i karaktereve për të shmangur probleme me performancën.
-Dështimi i API / network error
-Aplikacioni trajton gabimet nga API dhe shfaq mesazh të qartë pa u crash-uar.
-Parandalimi i double submit
-Butoni çaktivizohet gjatë loading për të shmangur dërgime të shumëfishta.
-🎯 Përmirësime në UX
-Shfaqet loading state gjatë përpunimit të kërkesës
-Mesazhe gabimi të qarta dhe të kuptueshme
-Aplikacioni nuk crash-on dhe gjithmonë kthen përgjigje të kontrolluar
-🚀 Stabiliteti në Production
-
-Aplikacioni është testuar në versionin live dhe trajton të gjitha edge cases pa probleme, duke ofruar një eksperiencë të qëndrueshme dhe të besueshme për përdoruesin.
