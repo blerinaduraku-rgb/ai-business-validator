@@ -196,6 +196,3 @@ As part of the production hardening process, several real-world edge cases were 
 
 ---
 
-## 📄 License
-
-This project is for educational purposes.
