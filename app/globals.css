@@ -8,20 +8,22 @@
   box-sizing: border-box;
 }
 
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #063376 0%, #1C5E92 100%);
   min-height: 100vh;
-  padding: 20px;
+  margin: 0;
+  padding: 0; /* ✅ hiq padding-un që krijon vijën në qoshe */
 }
 
+/* Container */
 .container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
 
+/* Card */
 .card {
   background: white;
   border-radius: 20px;
@@ -29,26 +31,29 @@ body {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
+/* Titujt */
 h1 {
-  color: #333;
+  color: #063376;
   font-size: 2.5rem;
   margin-bottom: 10px;
   text-align: center;
 }
 
 .subtitle {
-  color: #666;
+  color: #1C5E92;
   text-align: center;
   margin-bottom: 30px;
   font-size: 1.1rem;
 }
 
+/* Form */
 .form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
+/* Textarea */
 .textarea {
   width: 100%;
   padding: 15px;
@@ -56,22 +61,26 @@ h1 {
   border-radius: 12px;
   font-size: 1rem;
   resize: vertical;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
   font-family: inherit;
+  min-height: 120px;
 }
 
 .textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #1C5E92;
+  box-shadow: 0 0 0 3px rgba(28, 94, 146, 0.2);
 }
 
 .textarea:disabled {
   background: #f5f5f5;
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
+/* Butoni */
 .button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #063376 0%, #1C5E92 100%);
   color: white;
   border: none;
   padding: 15px 30px;
@@ -88,7 +97,7 @@ h1 {
 
 .button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 10px 30px rgba(28, 94, 146, 0.4);
 }
 
 .button:disabled {
@@ -96,6 +105,7 @@ h1 {
   cursor: not-allowed;
 }
 
+/* Spinner */
 .spinner {
   width: 20px;
   height: 20px;
@@ -109,122 +119,7 @@ h1 {
   to { transform: rotate(360deg); }
 }
 
-.error {
-  background: #fee;
-  color: #c33;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-  border-left: 4px solid #c33;
-}
-
-.response {
-  margin-top: 30px;
-  padding: 25px;
-  background: #f8f9fa;
-  border-radius: 15px;
-  border-left: 5px solid #667eea;
-}
-
-.response h2 {
-  color: #333;
-  margin-bottom: 15px;
-  font-size: 1.5rem;
-}
-
-.response-content {
-  color: #444;
-  line-height: 1.8;
-  font-size: 1rem;
-}
-
-.emoji {
-  font-size: 1.2em;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  .card {
-    padding: 25px;
-  }
-  
-  h1 {
-    font-size: 1.8rem;
-  }
-}
-
-.history-item {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-/*/////////*/
-/* Spinner Animation */
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Error Styling */
-.error {
-  background: #fee;
-  color: #c33;
-  padding: 15px 20px;
-  border-radius: 10px;
-  border-left: 4px solid #c33;
-  margin-top: 20px;
-}
-
-/* Loading State */
-.loading-box {
-  margin-top: 30px;
-  text-align: center;
-  padding: 40px;
-  background: #f8f9fa;
-  border-radius: 15px;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #667eea;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-/* Shtesa për detyrën */
-
-/* Spinner Animation */
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Error Styling */
+/* Error */
 .error {
   background: #fee;
   color: #c33;
@@ -246,32 +141,13 @@ h1 {
   }
 }
 
-/* Loading State */
-.loading-box {
-  margin-top: 30px;
-  text-align: center;
-  padding: 40px;
-  background: #f8f9fa;
-  border-radius: 15px;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #667eea;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-/* Response Section */
+/* Response */
 .response {
   margin-top: 30px;
   padding: 25px;
   background: #f8f9fa;
   border-radius: 15px;
-  border-left: 5px solid #667eea;
+  border-left: 5px solid #1C5E92;
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -286,31 +162,7 @@ h1 {
   }
 }
 
-/* Textarea styling (shtesa) */
-.textarea {
-  width: 100%;
-  padding: 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  font-size: 1rem;
-  resize: vertical;
-  transition: border-color 0.3s, box-shadow 0.3s;
-  font-family: inherit;
-  min-height: 120px;
-}
-
-.textarea:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.textarea:disabled {
-  background: #f5f5f5;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
+/* Markdown content */
 .markdown-content {
   background: #ffffff;
   padding: 25px;
@@ -324,31 +176,38 @@ h1 {
   font-weight: 700;
   margin-top: 20px;
   margin-bottom: 10px;
-  color: #2d3748;
+  color: #063376;
   display: flex;
   align-items: center;
 }
 
-.markdown-content p {
-  margin-bottom: 15px;
-  color: #4a5568;
+.markdown-content p,
+.markdown-content li {
+  color: #1C5E92;
   line-height: 1.6;
 }
 
-.markdown-content ul {
-  margin-bottom: 15px;
-  padding-left: 20px;
-  list-style-type: disc;
+/* Scrollbar styling për Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 10px; /* trashësia e shiritit */
 }
 
-.markdown-content li {
-  margin-bottom: 8px;
-  color: #4a5568;
+::-webkit-scrollbar-track {
+  background: #063376; /* ngjyra e sfondit të shiritit */
 }
 
-.markdown-content strong {
-  color: #1a202c;
-  font-weight: 600;
+::-webkit-scrollbar-thumb {
+  background-color: #1C5E92; /* ngjyra e pjesës që lëviz */
+  border-radius: 10px;
+  border: 2px solid #063376; /* kufi që e bën të duket i butë */
 }
 
+::-webkit-scrollbar-thumb:hover {
+  background-color: #0B4D97; /* kur kalon me maus */
+}
 
+/* Për Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1C5E92 #063376;
+}

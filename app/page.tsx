@@ -5,8 +5,9 @@ import ReactMarkdown from "react-markdown";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+
 import { 
-  LogOut, Plus, Send, Trash2, History, Loader2, AlertCircle,
+  LogOut, Plus, Send, Loader2, AlertCircle,
   BrainCircuit
 } from "lucide-react";
 
@@ -19,9 +20,8 @@ export default function Home() {
   const [response, setResponse] = useState("");
   const [error, setError] = useState("");
   const [history, setHistory] = useState<any[]>([]);
-  const [emptyClicked, setEmptyClicked] = useState(false); // përjashtimi
+  const [emptyClicked, setEmptyClicked] = useState(false);
 
-  // ✅ Thirret vetëm një herë pas autentikimit
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -32,31 +32,23 @@ export default function Home() {
   }, [authLoading]);
 
   const fetchHistory = async () => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     const { data, error } = await supabase
       .from("ideas")
-      .select("*")
+      .select("id, title, description, created_at")
+      .gte("created_at", thirtyDaysAgo.toISOString())
       .order("created_at", { ascending: false });
 
     if (error) console.error("Fetch error:", error.message);
     if (data) setHistory(data);
   };
 
-  const deleteHistoryItem = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const { error } = await supabase.from("ideas").delete().eq("id", id);
-    if (error) {
-      console.error("Delete error:", error.message);
-    } else {
-      setHistory(history.filter((h) => h.id !== id));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (loading) return;
 
-    // ✅ Përjashtimi për empty state
     if (!idea.trim()) {
       if (!emptyClicked) {
         setEmptyClicked(true);
@@ -78,20 +70,21 @@ export default function Home() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || `Request failed (${res.status})`);
-      }
-
-      if (!data.result) {
-        throw new Error("AI returned empty response");
-      }
+      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+      if (!data.result) throw new Error("AI returned empty response");
 
       setResponse(data.result);
 
-      setHistory([
-        { id: Date.now(), idea, ai_response: data.result, user_id: user?.id },
-        ...history,
-      ]);
+      const { data: inserted, error: insertError } = await supabase
+        .from("ideas")
+        .insert([{ title: idea, description: data.result, user_id: user?.id }])
+        .select("id, title, description, created_at");
+
+      if (insertError) {
+        console.error("Insert error:", insertError.message);
+      } else if (inserted) {
+        setHistory([inserted[0], ...history]);
+      }
 
     } catch (err: any) {
       setError(err.message || "An error occurred. Please try again.");
@@ -100,25 +93,29 @@ export default function Home() {
     }
   };
 
+  // ✅ Fix për glitch-in: mos e rendero faqen derisa authLoading të përfundojë
   if (authLoading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#063376]">
-        <Loader2 className="animate-spin text-[#E6A3AD]" size={40} />
+        <Loader2 className="animate-spin text-[#1C5E92]" size={40} />
       </div>
     );
   }
 
+  if (!user) {
+    return null; // mos e shfaq faqen fare derisa të bëhet redirect
+  }
+
   return (
-    <div className="flex h-screen bg-[#f0f4f8] text-[#063376] overflow-hidden font-sans">
-      
+    <div className="flex h-screen bg-gradient-to-r from-[#063376] via-[#0B4D97] to-[#3A7BD5] text-[#063376] overflow-hidden font-sans">
       {/* --- SIDEBAR --- */}
       <aside className="w-80 bg-[#063376] flex flex-col shadow-2xl z-20">
         <div className="p-8">
           <div className="flex items-center gap-3 font-black text-2xl text-white tracking-tighter">
-            <div className="bg-[#E6A3AD] p-2 rounded-xl">
-              <BrainCircuit size={24} className="text-[#063376]" />
+            <div className="bg-[#0B4D97] p-2 rounded-xl">
+              <BrainCircuit size={24} className="text-white" />
             </div>
-            <span>Validator<span className="text-[#A1ADD3]">.ai</span></span>
+            <span>BusinessLogic<span className="text-[#A1C4FF]">.ai</span></span>
           </div>
         </div>
 
@@ -130,34 +127,39 @@ export default function Home() {
             <Plus size={18} /> New Analysis
           </button>
 
-          <div className="flex items-center justify-between px-2 mb-4">
-            <h3 className="text-[10px] font-black text-[#A1ADD3] uppercase tracking-[0.2em]">History</h3>
-            <History size={14} className="text-[#A1ADD3]/50" />
-          </div>
+          <h3 className="text-sm font-bold text-[#A1C4FF] mb-4">Search History (last 30 days)</h3>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {history.map((item) => (
               <div 
                 key={item.id} 
-                onClick={() => { setResponse(item.ai_response); setIdea(item.idea); }}
-                className="group p-4 rounded-2xl bg-[#0B4D97]/30 border border-transparent hover:border-[#E6A3AD]/30 hover:bg-[#0B4D97]/50 cursor-pointer transition-all flex items-center justify-between"
+                onClick={() => { setResponse(item.description); setIdea(item.title); }}
+                className="p-4 rounded-2xl bg-[#0B4D97]/30 border hover:border-[#1C5E92]/30 hover:bg-[#0B4D97]/50 cursor-pointer transition-all shadow-md"
               >
-                <p className="text-sm font-bold text-[#A1ADD3] truncate mr-2">{item.idea}</p>
-                <button 
-                  onClick={(e) => deleteHistoryItem(item.id, e)}
-                  className="opacity-0 group-hover:opacity-100 p-1 text-[#E6A3AD] hover:text-white transition-all"
-                >
-                  <Trash2 size={14} />
-                </button>
+                <p className="text-sm font-bold text-[#A1C4FF] mb-2">{item.title || "Untitled Idea"}</p>
+                <p className="text-xs text-gray-300 truncate">{item.description || "No response yet"}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {item.created_at ? new Date(item.created_at).toLocaleDateString() : ""}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="p-6 border-t border-[#A1ADD3]/10 bg-[#04285a]">
+        <div className="p-6 border-t border-[#A1C4FF]/10 bg-[#04285a]">
           <button 
-            onClick={() => supabase.auth.signOut()}
-            className="flex items-center gap-3 text-[#A1ADD3] hover:text-[#E6A3AD] p-3 w-full rounded-xl transition-all font-bold text-sm"
+            onClick={() => router.push("/about")}
+            className="flex items-center gap-3 text-[#A1C4FF] hover:text-[#0B4D97] p-3 w-full rounded-xl transition-all font-bold text-sm mb-3"
+          >
+            About Us
+          </button>
+
+          <button 
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push("/login");
+            }}
+            className="flex items-center gap-3 text-[#A1C4FF] hover:text-[#0B4D97] p-3 w-full rounded-xl transition-all font-bold text-sm"
           >
             <LogOut size={18} /> Sign Out
           </button>
@@ -167,16 +169,15 @@ export default function Home() {
       {/* --- MAIN --- */}
       <main className="flex-1 overflow-y-auto p-12 relative">
         <div className="max-w-4xl mx-auto">
-
           {!response ? (
             <div className="text-center flex flex-col justify-center min-h-[70vh]">
               <h1 className="text-6xl font-black text-[#063376] mb-6">
                 Refine your Business Logic
               </h1>
 
-              <form onSubmit={handleSubmit} className="bg-white p-6 rounded-2xl shadow" noValidate>
+              <form onSubmit={handleSubmit} className="bg-[#0B4D97]/90 p-6 rounded-2xl shadow-lg" noValidate>
                 <textarea
-                  className="w-full min-h-[220px] p-4 border rounded-xl"
+                  className="w-full min-h-[220px] p-4 rounded-xl bg-[#063376]/80 text-white placeholder:text-[#A1C4FF] border border-[#1C5E92]/40 focus:border-[#A1C4FF] focus:ring-2 focus:ring-[#1C5E92]/50 outline-none transition-all"
                   placeholder="Describe your idea..."
                   value={idea}
                   onChange={(e) => setIdea(e.target.value)}
@@ -195,11 +196,11 @@ export default function Home() {
               </form>
             </div>
           ) : (
-            <div className="bg-white p-10 rounded-2xl shadow">
+            <div className="bg-[#063376]/90 p-10 rounded-2xl shadow-lg text-white">
               <ReactMarkdown>{response}</ReactMarkdown>
               <button
                 onClick={() => { setResponse(""); setIdea(""); setEmptyClicked(false); }}
-                className="mt-6 text-blue-600"
+                className="w-full flex items-center justify-center gap-2 bg-[#063376]/90 hover:bg-[#0B4D97] text-[#A1C4FF] p-4 rounded-2xl font-bold transition-all mb-10 shadow-lg backdrop-blur-sm"
               >
                 New Analysis
               </button>
