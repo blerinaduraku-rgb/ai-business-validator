@@ -16,7 +16,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
-  title: "BusinessLogic.ai",
+  title: "Validator.ai",
   description: "Validate and refine your business ideas with AI",
   icons: {
     icon: "/icon.png", // favicon nga public/

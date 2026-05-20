@@ -115,7 +115,7 @@ export default function Home() {
             <div className="bg-[#0B4D97] p-2 rounded-xl">
               <BrainCircuit size={24} className="text-white" />
             </div>
-            <span>BusinessLogic<span className="text-[#A1C4FF]">.ai</span></span>
+            <span>Validator<span className="text-[#A1C4FF]">.ai</span></span>
           </div>
         </div>
 
