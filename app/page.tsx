@@ -45,53 +45,46 @@ export default function Home() {
     if (data) setHistory(data);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (loading) return;
 
-    if (!idea.trim()) {
-      if (!emptyClicked) {
-        setEmptyClicked(true);
-        setError("Please write an Idea so we can validate it.");
-      }
-      return;
+  if (!idea.trim()) {
+    if (!emptyClicked) {
+      setEmptyClicked(true);
+      setError("Please write an Idea so we can validate it.");
     }
+    return;
+  }
 
-    setLoading(true);
-    setError("");
-    setResponse("");
+  setLoading(true);
+  setError("");
+  setResponse("");
 
-    try {
-      const res = await fetch("/api/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea, userId: user?.id }),
-      });
+  try {
+    const res = await fetch("/api/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idea, userId: user?.id }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
-      if (!data.result) throw new Error("AI returned empty response");
+    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+    if (!data.result) throw new Error("AI returned empty response");
 
-      setResponse(data.result);
+    setResponse(data.result);
 
-      const { data: inserted, error: insertError } = await supabase
-        .from("ideas")
-        .insert([{ title: idea, description: data.result, user_id: user?.id }])
-        .select("id, title, description, created_at");
+    // ❌ mos thirr fetchHistory këtu
+    // historia rifreskohet nga useEffect kur ngarkohet faqja
 
-      if (insertError) {
-        console.error("Insert error:", insertError.message);
-      } else if (inserted) {
-        setHistory([inserted[0], ...history]);
-      }
+  } catch (err: any) {
+    setError(err.message || "An error occurred. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    } catch (err: any) {
-      setError(err.message || "An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // ✅ Fix për glitch-in: mos e rendero faqen derisa authLoading të përfundojë
   if (authLoading) {
