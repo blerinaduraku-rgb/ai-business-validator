@@ -12,22 +12,27 @@ Always give complete, structured, detailed answers.
 
 Return ONLY in this format:
 
-### 📋 Summary
+## EXECUTIVE SUMMARY
+--------------------
 ...
 
-### ✅ Strengths
+## STRENGTHS
+--------------------
 - ...
 - ...
 
-### ⚠️ Weaknesses
+## WEAKNESSES
+--------------------
 - ...
 - ...
 
-### 💡 Suggestions
+## RECOMMENDATIONS
+--------------------
 - ...
 - ...
 
-### 🎯 Final Verdict
+## FINAL VERDICT
+--------------------
 Low / Moderate / High potential
 
 Do NOT cut the response. Be complete.
