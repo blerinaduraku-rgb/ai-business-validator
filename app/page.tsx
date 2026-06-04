@@ -45,48 +45,43 @@ export default function Home() {
     if (data) setHistory(data);
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (loading) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return;
 
-  if (!idea.trim()) {
-    if (!emptyClicked) {
-      setEmptyClicked(true);
-      setError("Please write an Idea so we can validate it.");
+    if (!idea.trim()) {
+      if (!emptyClicked) {
+        setEmptyClicked(true);
+        setError("Please write an Idea so we can validate it.");
+      }
+      return;
     }
-    return;
-  }
 
-  setLoading(true);
-  setError("");
-  setResponse("");
+    setLoading(true);
+    setError("");
+    setResponse("");
 
-  try {
-    const res = await fetch("/api/validate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idea, userId: user?.id }),
-    });
+    try {
+      const res = await fetch("/api/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idea, userId: user?.id }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
-    if (!data.result) throw new Error("AI returned empty response");
+      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+      if (!data.result) throw new Error("AI returned empty response");
 
-    setResponse(data.result);
+      setResponse(data.result);
 
-    // ❌ mos thirr fetchHistory këtu
-    // historia rifreskohet nga useEffect kur ngarkohet faqja
+    } catch (err: any) {
+      setError(err.message || "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  } catch (err: any) {
-    setError(err.message || "An error occurred. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  // ✅ Fix për glitch-in: mos e rendero faqen derisa authLoading të përfundojë
   if (authLoading) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#063376]">
@@ -96,7 +91,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 
   if (!user) {
-    return null; // mos e shfaq faqen fare derisa të bëhet redirect
+    return null;
   }
 
   return (
@@ -130,7 +125,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                 className="p-4 rounded-2xl bg-[#0B4D97]/30 border hover:border-[#1C5E92]/30 hover:bg-[#0B4D97]/50 cursor-pointer transition-all shadow-md"
               >
                 <p className="text-sm font-bold text-[#A1C4FF] mb-2">{item.title || "Untitled Idea"}</p>
-                <p className="text-xs text-gray-300 truncate">{item.description || "No response yet"}</p>
                 <p className="text-xs text-gray-400 mt-1">
                   {item.created_at ? new Date(item.created_at).toLocaleDateString() : ""}
                 </p>
